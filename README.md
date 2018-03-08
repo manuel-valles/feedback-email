@@ -1,7 +1,7 @@
 # Feedback Email
 A Fullstack React app for getting the feedback from users
 
-# Tools
+## Tools
 * Node - Express
 
 * MongoDB
@@ -10,4 +10,4 @@ A Fullstack React app for getting the feedback from users
 
 * Heroku
 
-# Live
+## Live
