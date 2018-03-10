@@ -9,6 +9,20 @@ const keys = require('../config/keys');
 // Import User model
 const User = mongoose.model('users');
 
+// Passport SerializeUser - Set Cookie
+passport.serializeUser((user, done) => {
+  // user.id for _id in the DB
+  done(null, user.id);
+});
+
+// Passport DeserializeUser - Turn out the user
+passport.deserializeUser((id, done) => {
+  User.findById(id)
+    .then(user => {
+      done(null, user);
+    });
+});
+
 // Apply a new strategy
 passport.use(new GoogleStrategy(
   {
@@ -16,7 +30,19 @@ passport.use(new GoogleStrategy(
     clientSecret: keys.googleClientSecret,
     callbackURL: '/auth/google/callback'
   }, (accessToken, refreshToken, profile, done) => {
-    // Create a model instance and save it into the DB
-    new User({googleId: profile.id}).save();
+    User.findOne({ googleId: profile.id })
+      .then(existingUser => {
+        if (existingUser) {
+          // We already have a record with the given profile ID
+          // (error, user's record)
+          done(null, existingUser);
+        } else {
+          // We don't have a user record with this ID, make a new record
+          // [Create a model instance and save it into the DB]
+          new User({ googleId: profile.id })
+            .save()
+            .then(user => done(null, user));
+        }
+      });
   }
 ));
